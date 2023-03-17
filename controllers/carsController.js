@@ -1,4 +1,5 @@
 const Cars = require("../models/Cars")
+const { validationResult } = require("express-validator")
 
 
 
@@ -24,33 +25,52 @@ const getCars = async (req, res) => {
 }
 
 const getCarById = async (req, res) => {
-
+try{
     const car = await Cars.findById(req.params.id)
-
     res.status(200).json({car, msg: "ok"})
+}catch(error){
+    res.status(500).json({msg: "Error - " + error.message}) 
+}
 }
 
 const getCarByTipo = async (req, res) => {
+try{
     const car = await Cars.findOne({tipo: req.query.tipo})
-
     res.status(200).json({car, msg: "ok"})
+}catch(error){
+    res.status(500).json({msg: "Error - " + error.message}) 
+}
 }
 
 const postCar = async (req, res) => {
-    const newCar = new Cars(req.body)
-    console.log(newCar)
-    await newCar.save()
+try{
+    const validationError = validationResult(req)
 
-    res.status(201).json({tipo: newCar.tipo, msg: "ok"})
+    if(validationError.isEmpty()){
+        const newCar = new Cars(req.body)
+        console.log(newCar)
+        await newCar.save()
+        res.status(201).json({tipo: newCar.tipo, msg: "ok"})        
+    }else{
+        res.status(400).json({tipo: null, msg: "Error ", error: validationError.errors})
+    }
+}catch(error){
+    res.status(500).json({msg: "Error - " + error.message, statusCode: 500}) 
+}
 }
 
 
 const putCar = async (req, res) => {
 
     try{
+        const validationError = validationResult(req)
+    if(validationError.isEmpty()){
         await Cars.findByIdAndUpdate(req.params.id, req.body)
         const editedCar = req.body
-        res.status(200).json({msg:"Has editado estos datos", datosEditados: editedCar})
+        res.status(200).json({msg:"Has editado estos datos", datosEditados: editedCar})        
+    }else{
+        res.status(400).json({msg:"Error ", datosEditados: null, error: validationError})         
+    }
     }catch(error){
         res.status(500).json({msg: "Error - " + error.message})
     }
@@ -60,7 +80,6 @@ const putCar = async (req, res) => {
 
 const deleteCar = async (req, res) => {
     try {
-        //const cars = Cars.findById(req.params.id)
         await Cars.findByIdAndDelete(req.params.id);
         res.status(200).json({msg:"Eliminaste un auto"})
     }catch(error){

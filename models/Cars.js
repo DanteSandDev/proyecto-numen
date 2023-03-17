@@ -21,6 +21,11 @@ const carSchema = new Schema ({
     precio: {
         type: Number,
         required: true
+    },
+    serie: {
+        type: Number,
+        required: true,
+        unique: true
     }
 })
 
