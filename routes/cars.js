@@ -2,7 +2,7 @@ const express = require('express');
 const router = express.Router();
 const carsController = require("../controllers/carsController");
 const { check } = require("express-validator");
-const validarUsername = require("../middlewares/customMiddleware")
+const validarSerie = require("../middlewares/customMiddleware")
 
 router.get("/", carsController.getCars);
 
@@ -17,7 +17,7 @@ router.post("/nuevoauto", [
     check("color").not().isEmpty().withMessage("El color del auto es obligatorio"),
     check("precio").not().isEmpty().withMessage("El precio del auto es obligatorio").isNumeric().withMessage("El precio debe ser numérico"),
     check("serie").not().isEmpty().withMessage("El numero de serie es obligatorio").isNumeric().withMessage("El número de serie debe ser numérico")
-], validarUsername, carsController.postCar)
+], validarSerie, carsController.postCar)
 
 router.put("/actualizar/:id", [
     check("marca").not().isEmpty().withMessage("La marca del auto es obligatoria"),
@@ -26,7 +26,7 @@ router.put("/actualizar/:id", [
     check("color").not().isEmpty().withMessage("El color del auto es obligatorio"),
     check("precio").not().isEmpty().withMessage("El precio del auto es obligatorio").not().isNumeric().withMessage("El precio debe ser numérico"),
     check("serie").not().isEmpty().withMessage("El numero de serie es obligatorio").isNumeric().withMessage("El número de serie debe ser numérico")
-], validarUsername, carsController.putCar)
+], validarSerie, carsController.putCar)
 
 router.delete("/eliminarAuto/:id", carsController.deleteCar)
 

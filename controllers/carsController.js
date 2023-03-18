@@ -1,5 +1,6 @@
 const Cars = require("../models/Cars")
 const { validationResult } = require("express-validator")
+const bcrypt = require('bcryptjs');
 
 
 
@@ -47,8 +48,22 @@ try{
     const validationError = validationResult(req)
 
     if(validationError.isEmpty()){
-        const newCar = new Cars(req.body)
-        console.log(newCar)
+
+        const salt = bcrypt.genSaltSync(10)
+        const hash = bcrypt.hashSync(req.body.serie, salt)
+
+        const hashedCar = {
+            marca: req.body.marca,
+            tipo: req.body.tipo,
+            modelo: req.body.modelo,
+            color: req.body.color,
+            precio: req.body.precio,
+            serie: hash,
+        }
+
+        const newCar = new Cars(hashedCar)
+
+        
         await newCar.save()
         res.status(201).json({tipo: newCar.tipo, msg: "ok"})        
     }else{
