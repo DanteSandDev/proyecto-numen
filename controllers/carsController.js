@@ -1,6 +1,5 @@
 const Cars = require("../models/Cars")
 const { validationResult } = require("express-validator")
-const bcrypt = require('bcryptjs');
 
 
 
@@ -44,32 +43,18 @@ try{
 }
 
 const postCar = async (req, res) => {
+
 try{
     const validationError = validationResult(req)
-
-    if(validationError.isEmpty()){
-
-        const salt = bcrypt.genSaltSync(10)
-        const hash = bcrypt.hashSync(req.body.serie, salt)
-
-        const hashedCar = {
-            marca: req.body.marca,
-            tipo: req.body.tipo,
-            modelo: req.body.modelo,
-            color: req.body.color,
-            precio: req.body.precio,
-            serie: hash,
-        }
-
-        const newCar = new Cars(hashedCar)
-
-        
+    if(!validationError.isEmpty()){
+        const newCar = new Cars(req.body)
         await newCar.save()
-        res.status(201).json({tipo: newCar.tipo, msg: "ok"})        
+        res.status(201).json({tipo: req.body.tipo, msg: "ok"})
     }else{
-        res.status(400).json({tipo: null, msg: "Error ", error: validationError.errors})
+        res.status(400).json({msg:"Error ", auto: null, error: validationError.errors})  
     }
 }catch(error){
+
     res.status(500).json({msg: "Error - " + error.message, statusCode: 500}) 
 }
 }
@@ -84,7 +69,7 @@ const putCar = async (req, res) => {
         const editedCar = req.body
         res.status(200).json({msg:"Has editado estos datos", datosEditados: editedCar})        
     }else{
-        res.status(400).json({msg:"Error ", datosEditados: null, error: validationError})         
+        res.status(400).json({msg:"Error ", datosEditados: null, error: validationError.errors})         
     }
     }catch(error){
         res.status(500).json({msg: "Error - " + error.message})
@@ -101,6 +86,9 @@ const deleteCar = async (req, res) => {
         res.status(500).json({msg: "Error - " + error.message})
     }
 }
+
+
+
 
 
 module.exports = {getCars, getCarById, getCarByTipo, postCar, putCar, deleteCar}
